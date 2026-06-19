@@ -14,8 +14,8 @@
 }
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
 
-/* ── API KEY MODAL ── */
-#modal{
+/* ── MODALS ── */
+.overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.85);
   display:flex;align-items:center;justify-content:center;z-index:999;
   backdrop-filter:blur(4px);
@@ -37,14 +37,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .modal-input{
   width:100%;background:#0a1120;border:1px solid var(--border);
   border-radius:9px;padding:11px 14px;color:var(--text);
-  font-size:13.5px;font-family:'Inter',sans-serif;outline:none;
-  transition:border .2s;
+  font-size:13.5px;font-family:'Inter',sans-serif;outline:none;transition:border .2s;
 }
 .modal-input:focus{border-color:var(--accent)}
 .modal-btn{
   background:var(--accent);color:#000;border:none;
-  padding:12px;border-radius:9px;font-weight:700;
-  font-size:14px;cursor:pointer;transition:opacity .2s;
+  padding:12px;border-radius:9px;font-weight:700;font-size:14px;
+  cursor:pointer;transition:opacity .2s;
 }
 .modal-btn:hover{opacity:.85}
 .modal-hint{font-size:11px;color:var(--dim);text-align:center;line-height:1.6}
@@ -76,12 +75,11 @@ header{
 }
 .btn:hover{opacity:.85;transform:translateY(-1px)}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-key{
+.btn-sm{
   background:transparent;color:var(--muted);border:1px solid var(--border);
-  padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;
-  transition:all .2s;
+  padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .2s;
 }
-.btn-key:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
 
 /* ── MAIN ── */
 main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
@@ -130,7 +128,7 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
 <body>
 
 <!-- ── MODAL SENHA ── -->
-<div id="modalSenha" style="display:none">
+<div class="overlay" id="modalSenha" style="display:none">
   <div class="modal-box">
     <div class="modal-logo">
       <div class="modal-icon">🔒</div>
@@ -141,39 +139,34 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
     </div>
     <div class="modal-sub" id="senhaDesc">Digite sua senha para acessar o dashboard.</div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="modal-label" id="senhaLabel">Senha</div>
-      <input class="modal-input" id="senhaInput" type="password" placeholder="••••••••" />
-      <div id="senhaConfirmWrap" style="display:none;flex-direction:column;gap:8px;margin-top:4px">
-        <div class="modal-label">Confirmar Senha</div>
-        <input class="modal-input" id="senhaConfirm" type="password" placeholder="••••••••" />
-      </div>
-      <div class="modal-err" id="senhaErr">⚠️ Senha incorreta. Tente novamente.</div>
+      <div class="modal-label">Senha</div>
+      <input class="modal-input" id="senhaInput" type="password" placeholder="••••••••"/>
+      <div class="modal-err" id="senhaErr"></div>
     </div>
-    <button class="modal-btn" id="senhaBtnEntrar" onclick="handleSenha()">Entrar →</button>
-    <div class="modal-hint" id="senhaHint"></div>
+    <button class="modal-btn" onclick="handleSenha()">Entrar →</button>
   </div>
 </div>
 
 <!-- ── MODAL API KEY ── -->
-<div id="modal">
+<div class="overlay" id="modalKey" style="display:none">
   <div class="modal-box">
     <div class="modal-logo">
       <div class="modal-icon">📊</div>
       <div>
-        <div class="modal-title">Financial Intelligence</div>
+        <div class="modal-title">Google AI Studio API Key</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px">Consultor Financeiro Patrimonial</div>
       </div>
     </div>
-    <div class="modal-sub">Para usar o dashboard, insira sua chave de API da Anthropic. Ela será salva localmente no seu navegador e não precisará ser inserida novamente.</div>
+    <div class="modal-sub">Insira sua chave do Google AI Studio. Ela será salva localmente no navegador e não precisará ser inserida novamente.</div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <div class="modal-label">Anthropic API Key</div>
-      <input class="modal-input" id="keyInput" type="password" placeholder="sk-ant-..." />
-      <div class="modal-err" id="keyErr">⚠️ Chave inválida. Verifique e tente novamente.</div>
+      <div class="modal-label">API Key</div>
+      <input class="modal-input" id="keyInput" type="password" placeholder="AIza..."/>
+      <div class="modal-err" id="keyErr"></div>
     </div>
     <button class="modal-btn" onclick="saveKey()">Salvar e Entrar →</button>
     <div class="modal-hint">
-      Não tem uma chave? Crie em <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
-      Seu uso diário estimado: <strong style="color:var(--accent)">R$ 0,50 – R$ 2,00</strong>
+      Obtenha sua chave gratuita em <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a><br>
+      Uso diário estimado: <strong style="color:var(--accent)">Gratuito</strong> no free tier do Gemini
     </div>
   </div>
 </div>
@@ -192,8 +185,8 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
       <div id="clock">--:--</div>
       <div id="datestr">--</div>
     </div>
-    <button class="btn-key" onclick="resetSenha()">🔒 Senha</button>
-    <button class="btn-key" onclick="resetKey()">🔑 API Key</button>
+    <button class="btn-sm" onclick="resetSenha()">🔒 Senha</button>
+    <button class="btn-sm" onclick="resetKey()">🔑 API Key</button>
     <button class="btn" id="btnRefresh" onclick="loadAll()">🔄 Atualizar</button>
   </div>
 </header>
@@ -202,7 +195,7 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
 <main>
   <div class="card briefing">
     <div class="card-head">
-      <div class="card-title">⚡ Briefing Executivo do Dia <span class="badge badge-gold">IA · Tempo Real</span></div>
+      <div class="card-title">⚡ Briefing Executivo do Dia <span class="badge badge-gold">Gemini · Google Search</span></div>
       <div class="ts" id="ts-briefing"><div class="dot"></div> Não atualizado</div>
     </div>
     <div class="card-body"><div class="content" id="cnt-briefing">
@@ -248,81 +241,58 @@ async function sha256(str){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-
 async function handleSenha(){
   const val=document.getElementById('senhaInput').value;
   const err=document.getElementById('senhaErr');
   err.style.display='none';
-  if(!val){err.textContent='⚠️ Digite uma senha.';err.style.display='block';return;}
-
+  if(!val){err.textContent='⚠️ Digite a senha.';err.style.display='block';return;}
   const hash=localStorage.getItem('fi_senha');
-
-  if(!hash){
-    // Primeira vez — definir senha
-    const conf=document.getElementById('senhaConfirm').value;
-    if(val!==conf){err.textContent='⚠️ As senhas não coincidem.';err.style.display='block';return;}
-    if(val.length<4){err.textContent='⚠️ Use pelo menos 4 caracteres.';err.style.display='block';return;}
-    localStorage.setItem('fi_senha',await sha256(val));
+  if(await sha256(val)===hash){
     sessionStorage.setItem('fi_auth','1');
     document.getElementById('modalSenha').style.display='none';
     checkApiKey();
   } else {
-    // Verificar senha
-    const input=await sha256(val);
-    if(input===hash){
-      sessionStorage.setItem('fi_auth','1');
-      document.getElementById('modalSenha').style.display='none';
-      checkApiKey();
-    } else {
-      err.textContent='⚠️ Senha incorreta. Tente novamente.';
-      err.style.display='block';
-      document.getElementById('senhaInput').value='';
-    }
+    err.textContent='⚠️ Senha incorreta.';err.style.display='block';
+    document.getElementById('senhaInput').value='';
   }
 }
-
-function checkApiKey(){
-  if(!getKey()) document.getElementById('modal').style.display='flex';
-}
-
 function resetSenha(){
-  if(!confirm('Redefinir senha? Você precisará criar uma nova.')) return;
+  if(!confirm('Redefinir senha? Você usará a senha padrão na próxima vez.')) return;
   localStorage.removeItem('fi_senha');
   sessionStorage.removeItem('fi_auth');
   location.reload();
 }
 
 // ── API Key ───────────────────────────────────────────────
+function getKey(){return localStorage.getItem('fi_gemini_key')}
 function saveKey(){
   const k=document.getElementById('keyInput').value.trim();
-  if(!k.startsWith('sk-ant-')){
-    document.getElementById('keyErr').style.display='block';return;
-  }
-  localStorage.setItem('fi_apikey',k);
-  document.getElementById('modal').style.display='none';
+  const err=document.getElementById('keyErr');
+  err.style.display='none';
+  if(!k.startsWith('AIza')){err.textContent='⚠️ Chave inválida. Deve começar com AIza...';err.style.display='block';return;}
+  localStorage.setItem('fi_gemini_key',k);
+  document.getElementById('modalKey').style.display='none';
 }
 function resetKey(){
-  localStorage.removeItem('fi_apikey');
+  localStorage.removeItem('fi_gemini_key');
   document.getElementById('keyInput').value='';
   document.getElementById('keyErr').style.display='none';
-  document.getElementById('modal').style.display='flex';
+  document.getElementById('modalKey').style.display='flex';
 }
-function getKey(){return localStorage.getItem('fi_apikey')}
+function checkApiKey(){
+  if(!getKey()) document.getElementById('modalKey').style.display='flex';
+}
 
-// Verifica ao carregar
-window.addEventListener('DOMContentLoaded',()=>{
+// ── Init ─────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  // Define senha padrão se não existir
+  if(!localStorage.getItem('fi_senha')){
+    localStorage.setItem('fi_senha', await sha256('1105Janela!'));
+  }
+
   const auth=sessionStorage.getItem('fi_auth');
-  const hash=localStorage.getItem('fi_senha');
-  const ms=document.getElementById('modalSenha');
-
-  if(!hash){
-    // Define senha padrão silenciosamente na primeira vez
-    sha256('1105Janela!').then(h=>{
-      localStorage.setItem('fi_senha',h);
-    });
-    ms.style.display='flex';
-  } else if(!auth){
-    ms.style.display='flex';
+  if(!auth){
+    document.getElementById('modalSenha').style.display='flex';
   } else {
     checkApiKey();
   }
@@ -362,29 +332,26 @@ function stamp(id){
   document.getElementById(id).innerHTML=`<div class="dot live"></div> Atualizado ${t}`;
 }
 
-// ── Chamada API ───────────────────────────────────────────
+// ── Chamada Gemini API ────────────────────────────────────
 async function ask(cntId,tsId,prompt){
   const el=document.getElementById(cntId);
-  el.innerHTML='<div class="loading"><span class="spin"></span> Buscando e analisando notícias…</div>';
+  el.innerHTML='<div class="loading"><span class="spin"></span> Buscando no Google e analisando…</div>';
   try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":getKey(),
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:1000,
-        tools:[{type:"web_search_20250305",name:"web_search"}],
-        messages:[{role:"user",content:prompt}]
-      })
-    });
+    const r=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${getKey()}`,
+      {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contents:[{parts:[{text:prompt}]}],
+          tools:[{google_search:{}}]
+        })
+      }
+    );
     const d=await r.json();
     if(d.error) throw new Error(d.error.message);
-    const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    const txt=(d.candidates?.[0]?.content?.parts||[])
+      .map(p=>p.text||'').join('').trim();
     el.innerHTML=txt?fmt(txt):'<p class="err">Sem conteúdo retornado.</p>';
     stamp(tsId);
   }catch(e){
@@ -397,13 +364,15 @@ function loadAll(){
   const btn=document.getElementById('btnRefresh');
   btn.disabled=true;btn.innerHTML='⏳ Atualizando…';
   const hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
   const sections=[
     ['cnt-briefing','ts-briefing',`Hoje é ${hoje}. Você é um assistente de inteligência financeira sênior. Elabore um briefing executivo conciso para um Consultor Financeiro Patrimonial brasileiro de alto padrão. Pesquise as notícias mais relevantes de hoje sobre: cenário político brasileiro e seus impactos, dados econômicos (Selic, inflação, fiscal), mercado financeiro local (B3, câmbio, juros futuros) e mercados internacionais (Fed, S&P, petróleo, China). Escreva em linguagem profissional e direta, destacando o que mais importa para orientar clientes de alta renda hoje. Use parágrafos curtos. Máximo 380 palavras.`],
     ['cnt-pol','ts-pol',`Hoje é ${hoje}. Pesquise as principais notícias políticas do Brasil publicadas hoje. Foque em decisões, votações no Congresso, atos do Executivo ou eventos que possam impactar direta ou indiretamente a economia, mercado financeiro ou ambiente regulatório. Redija de forma objetiva e analítica para um Consultor Financeiro Patrimonial. Máximo 280 palavras.`],
-    ['cnt-eco','ts-eco',`Hoje é ${hoje}. Pesquise os dados e notícias econômicas do Brasil publicados hoje: IPCA, IGP-M, Selic, política fiscal, dívida pública, balanço de pagamentos, dados do Banco Central, IBGE e Tesouro Nacional. Apresente de forma técnica, com números quando disponíveis, para um profissional de finanças. Máximo 280 palavras.`],
+    ['cnt-eco','ts-eco',`Hoje é ${hoje}. Pesquise os dados e notícias econômicas do Brasil publicados hoje: IPCA, IGP-M, Selic, política fiscal, dívida pública, balanço de pagamentos, dados do Banco Central, IBGE e Tesouro Nacional. Apresente de forma técnica, com números quando disponíveis. Máximo 280 palavras.`],
     ['cnt-local','ts-local',`Hoje é ${hoje}. Pesquise o desempenho do mercado financeiro brasileiro hoje: Ibovespa (pontos e variação %), câmbio USD/BRL, taxas de juros futuros (DI), destaques de ações, movimentos em fundos e renda fixa. Apresente os números com contexto e análise para um Consultor Financeiro Patrimonial. Máximo 280 palavras.`],
     ['cnt-int','ts-int',`Hoje é ${hoje}. Pesquise as principais notícias dos mercados internacionais hoje: Fed, BCE, S&P 500, Nasdaq, Dow Jones, petróleo (WTI e Brent), ouro, yuan, economia dos EUA, Europa e China. Destaque o que pode impactar o Brasil e investidores brasileiros. Máximo 280 palavras.`]
   ];
+
   const delay=ms=>new Promise(r=>setTimeout(r,ms));
   (async()=>{
     for(let i=0;i<sections.length;i++){
