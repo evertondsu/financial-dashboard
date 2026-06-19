@@ -160,7 +160,7 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
     <div class="modal-sub">Insira sua chave do Google AI Studio. Ela será salva localmente no navegador e não precisará ser inserida novamente.</div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <div class="modal-label">API Key</div>
-      <input class="modal-input" id="keyInput" type="password" placeholder="Cole sua chave aqui…"/>
+      <input class="modal-input" id="keyInput" type="password" placeholder="AIza..."/>
       <div class="modal-err" id="keyErr"></div>
     </div>
     <button class="modal-btn" onclick="saveKey()">Salvar e Entrar →</button>
@@ -269,7 +269,7 @@ function saveKey(){
   const k=document.getElementById('keyInput').value.trim();
   const err=document.getElementById('keyErr');
   err.style.display='none';
-  if(k.length < 20){err.textContent='⚠️ Chave inválida. Verifique e tente novamente.';err.style.display='block';return;}
+  if(!k.startsWith('AIza')){err.textContent='⚠️ Chave inválida. Deve começar com AIza...';err.style.display='block';return;}
   localStorage.setItem('fi_gemini_key',k);
   document.getElementById('modalKey').style.display='none';
 }
@@ -338,13 +338,13 @@ async function ask(cntId,tsId,prompt){
   el.innerHTML='<div class="loading"><span class="spin"></span> Buscando no Google e analisando…</div>';
   try{
     const r=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${getKey()}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${getKey()}`,
       {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           contents:[{parts:[{text:prompt}]}],
-          tools:[{google_search:{}}]
+          tools:[{google_search_retrieval:{dynamic_retrieval_config:{mode:'MODE_DYNAMIC'}}}]
         })
       }
     );
