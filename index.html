@@ -129,6 +129,31 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
 </head>
 <body>
 
+<!-- ── MODAL SENHA ── -->
+<div id="modalSenha" style="display:none">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <div class="modal-icon">🔒</div>
+      <div>
+        <div class="modal-title" id="senhaTitle">Acesso Restrito</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Financial Intelligence Dashboard</div>
+      </div>
+    </div>
+    <div class="modal-sub" id="senhaDesc">Digite sua senha para acessar o dashboard.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="modal-label" id="senhaLabel">Senha</div>
+      <input class="modal-input" id="senhaInput" type="password" placeholder="••••••••" />
+      <div id="senhaConfirmWrap" style="display:none;flex-direction:column;gap:8px;margin-top:4px">
+        <div class="modal-label">Confirmar Senha</div>
+        <input class="modal-input" id="senhaConfirm" type="password" placeholder="••••••••" />
+      </div>
+      <div class="modal-err" id="senhaErr">⚠️ Senha incorreta. Tente novamente.</div>
+    </div>
+    <button class="modal-btn" id="senhaBtnEntrar" onclick="handleSenha()">Entrar →</button>
+    <div class="modal-hint" id="senhaHint"></div>
+  </div>
+</div>
+
 <!-- ── MODAL API KEY ── -->
 <div id="modal">
   <div class="modal-box">
@@ -167,6 +192,7 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
       <div id="clock">--:--</div>
       <div id="datestr">--</div>
     </div>
+    <button class="btn-key" onclick="resetSenha()">🔒 Senha</button>
     <button class="btn-key" onclick="resetKey()">🔑 API Key</button>
     <button class="btn" id="btnRefresh" onclick="loadAll()">🔄 Atualizar</button>
   </div>
@@ -217,6 +243,55 @@ main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:col
 </main>
 
 <script>
+// ── Senha ─────────────────────────────────────────────────
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function handleSenha(){
+  const val=document.getElementById('senhaInput').value;
+  const err=document.getElementById('senhaErr');
+  err.style.display='none';
+  if(!val){err.textContent='⚠️ Digite uma senha.';err.style.display='block';return;}
+
+  const hash=localStorage.getItem('fi_senha');
+
+  if(!hash){
+    // Primeira vez — definir senha
+    const conf=document.getElementById('senhaConfirm').value;
+    if(val!==conf){err.textContent='⚠️ As senhas não coincidem.';err.style.display='block';return;}
+    if(val.length<4){err.textContent='⚠️ Use pelo menos 4 caracteres.';err.style.display='block';return;}
+    localStorage.setItem('fi_senha',await sha256(val));
+    sessionStorage.setItem('fi_auth','1');
+    document.getElementById('modalSenha').style.display='none';
+    checkApiKey();
+  } else {
+    // Verificar senha
+    const input=await sha256(val);
+    if(input===hash){
+      sessionStorage.setItem('fi_auth','1');
+      document.getElementById('modalSenha').style.display='none';
+      checkApiKey();
+    } else {
+      err.textContent='⚠️ Senha incorreta. Tente novamente.';
+      err.style.display='block';
+      document.getElementById('senhaInput').value='';
+    }
+  }
+}
+
+function checkApiKey(){
+  if(!getKey()) document.getElementById('modal').style.display='flex';
+}
+
+function resetSenha(){
+  if(!confirm('Redefinir senha? Você precisará criar uma nova.')) return;
+  localStorage.removeItem('fi_senha');
+  sessionStorage.removeItem('fi_auth');
+  location.reload();
+}
+
 // ── API Key ───────────────────────────────────────────────
 function saveKey(){
   const k=document.getElementById('keyInput').value.trim();
@@ -236,7 +311,26 @@ function getKey(){return localStorage.getItem('fi_apikey')}
 
 // Verifica ao carregar
 window.addEventListener('DOMContentLoaded',()=>{
-  if(getKey()) document.getElementById('modal').style.display='none';
+  const auth=sessionStorage.getItem('fi_auth');
+  const hash=localStorage.getItem('fi_senha');
+  const ms=document.getElementById('modalSenha');
+
+  if(!hash){
+    // Primeira vez — configurar senha
+    ms.style.display='flex';
+    document.getElementById('senhaTitle').textContent='Criar Senha de Acesso';
+    document.getElementById('senhaDesc').textContent='Primeira vez? Defina uma senha para proteger seu dashboard.';
+    document.getElementById('senhaLabel').textContent='Nova Senha';
+    document.getElementById('senhaBtnEntrar').textContent='Criar Senha →';
+    document.getElementById('senhaConfirmWrap').style.display='flex';
+    document.getElementById('senhaHint').textContent='Você precisará desta senha sempre que acessar o dashboard.';
+  } else if(!auth){
+    ms.style.display='flex';
+  } else {
+    checkApiKey();
+  }
+
+  document.getElementById('senhaInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleSenha()});
   document.getElementById('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveKey()});
 });
 
