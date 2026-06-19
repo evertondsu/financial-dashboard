@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Intelligence Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080c14;--card:#0e1623;--border:rgba(99,140,200,0.13);
+  --accent:#f59e0b;--blue:#60a5fa;--green:#34d399;--red:#f87171;
+  --text:#e2e8f0;--muted:#94a3b8;--dim:#475569;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* ── API KEY MODAL ── */
+#modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);
+  display:flex;align-items:center;justify-content:center;z-index:999;
+  backdrop-filter:blur(4px);
+}
+.modal-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:36px;width:100%;max-width:440px;
+  display:flex;flex-direction:column;gap:20px;
+}
+.modal-logo{display:flex;align-items:center;gap:12px}
+.modal-icon{
+  width:44px;height:44px;border-radius:11px;
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.modal-title{font-size:18px;font-weight:700}
+.modal-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.modal-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.modal-input{
+  width:100%;background:#0a1120;border:1px solid var(--border);
+  border-radius:9px;padding:11px 14px;color:var(--text);
+  font-size:13.5px;font-family:'Inter',sans-serif;outline:none;
+  transition:border .2s;
+}
+.modal-input:focus{border-color:var(--accent)}
+.modal-btn{
+  background:var(--accent);color:#000;border:none;
+  padding:12px;border-radius:9px;font-weight:700;
+  font-size:14px;cursor:pointer;transition:opacity .2s;
+}
+.modal-btn:hover{opacity:.85}
+.modal-hint{font-size:11px;color:var(--dim);text-align:center;line-height:1.6}
+.modal-hint a{color:var(--blue);text-decoration:none}
+.modal-err{font-size:12px;color:var(--red);display:none}
+
+/* ── HEADER ── */
+header{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:14px 24px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:36px;height:36px;border-radius:9px;
+  background:linear-gradient(135deg,#f59e0b,#d97706);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.logo-name{font-weight:700;font-size:15px}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:14px}
+#clock{font-size:22px;font-weight:700;letter-spacing:1px}
+#datestr{font-size:11px;color:var(--muted);margin-top:1px;text-transform:capitalize}
+.btn{
+  background:var(--accent);color:#000;border:none;
+  padding:9px 18px;border-radius:8px;font-weight:700;
+  font-size:13px;cursor:pointer;display:flex;align-items:center;
+  gap:6px;transition:all .2s;white-space:nowrap;
+}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-key{
+  background:transparent;color:var(--muted);border:1px solid var(--border);
+  padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;
+  transition:all .2s;
+}
+.btn-key:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── MAIN ── */
+main{padding:22px;max-width:1440px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.card-head{
+  padding:13px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.card-title{display:flex;align-items:center;gap:7px;font-weight:600;font-size:13.5px}
+.badge{font-size:9.5px;padding:2px 8px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.badge-gold{background:rgba(245,158,11,.12);color:var(--accent)}
+.ts{font-size:10px;color:var(--dim);display:flex;align-items:center;gap:5px;white-space:nowrap}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--dim);flex-shrink:0}
+.dot.live{background:var(--green);box-shadow:0 0 6px var(--green)}
+.briefing .card-head{background:linear-gradient(90deg,rgba(245,158,11,.08),transparent)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card-body{padding:18px 20px}
+
+/* ── CONTENT ── */
+.content{font-size:13.5px;line-height:1.8;color:var(--text)}
+.content p{margin-bottom:11px}
+.content p:last-child{margin-bottom:0}
+.content strong,.content b{color:var(--accent);font-weight:600}
+.content ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:11px}
+.content ul li{padding-left:16px;position:relative}
+.content ul li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-size:10px;top:3px}
+.content h3{color:var(--blue);font-size:13px;font-weight:600;margin:12px 0 6px}
+.loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;padding:24px 0}
+.spin{width:16px;height:16px;border:2px solid var(--dim);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{display:flex;flex-direction:column;align-items:center;padding:36px 0;gap:10px;color:var(--dim)}
+.empty-icon{font-size:28px;opacity:.6}
+.empty-txt{font-size:13px}
+.err{color:var(--red);font-size:13px;padding:8px 0}
+
+@media(max-width:860px){
+  .grid{grid-template-columns:1fr}
+  main{padding:14px}
+  header{padding:12px 16px;flex-wrap:wrap;gap:10px}
+  .logo-sub{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ── MODAL API KEY ── -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <div class="modal-icon">📊</div>
+      <div>
+        <div class="modal-title">Financial Intelligence</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Consultor Financeiro Patrimonial</div>
+      </div>
+    </div>
+    <div class="modal-sub">Para usar o dashboard, insira sua chave de API da Anthropic. Ela será salva localmente no seu navegador e não precisará ser inserida novamente.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="modal-label">Anthropic API Key</div>
+      <input class="modal-input" id="keyInput" type="password" placeholder="sk-ant-..." />
+      <div class="modal-err" id="keyErr">⚠️ Chave inválida. Verifique e tente novamente.</div>
+    </div>
+    <button class="modal-btn" onclick="saveKey()">Salvar e Entrar →</button>
+    <div class="modal-hint">
+      Não tem uma chave? Crie em <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>
+      Seu uso diário estimado: <strong style="color:var(--accent)">R$ 0,50 – R$ 2,00</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div>
+      <div class="logo-name">Financial Intelligence</div>
+      <div class="logo-sub">Consultor Financeiro Patrimonial</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div style="text-align:right">
+      <div id="clock">--:--</div>
+      <div id="datestr">--</div>
+    </div>
+    <button class="btn-key" onclick="resetKey()">🔑 API Key</button>
+    <button class="btn" id="btnRefresh" onclick="loadAll()">🔄 Atualizar</button>
+  </div>
+</header>
+
+<!-- ── MAIN ── -->
+<main>
+  <div class="card briefing">
+    <div class="card-head">
+      <div class="card-title">⚡ Briefing Executivo do Dia <span class="badge badge-gold">IA · Tempo Real</span></div>
+      <div class="ts" id="ts-briefing"><div class="dot"></div> Não atualizado</div>
+    </div>
+    <div class="card-body"><div class="content" id="cnt-briefing">
+      <div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Clique em <strong style="color:var(--accent)">Atualizar</strong> para carregar o briefing do dia</div></div>
+    </div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🏛️ Política</div>
+        <div class="ts" id="ts-pol"><div class="dot"></div> Não atualizado</div>
+      </div>
+      <div class="card-body"><div class="content" id="cnt-pol"><div class="empty"><div class="empty-icon">🏛️</div><div class="empty-txt">Aguardando</div></div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">📉 Economia Brasileira</div>
+        <div class="ts" id="ts-eco"><div class="dot"></div> Não atualizado</div>
+      </div>
+      <div class="card-body"><div class="content" id="cnt-eco"><div class="empty"><div class="empty-icon">📉</div><div class="empty-txt">Aguardando</div></div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">💹 Mercado Financeiro Local</div>
+        <div class="ts" id="ts-local"><div class="dot"></div> Não atualizado</div>
+      </div>
+      <div class="card-body"><div class="content" id="cnt-local"><div class="empty"><div class="empty-icon">💹</div><div class="empty-txt">Aguardando</div></div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🌍 Mercado Internacional</div>
+        <div class="ts" id="ts-int"><div class="dot"></div> Não atualizado</div>
+      </div>
+      <div class="card-body"><div class="content" id="cnt-int"><div class="empty"><div class="empty-icon">🌍</div><div class="empty-txt">Aguardando</div></div></div></div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ── API Key ───────────────────────────────────────────────
+function saveKey(){
+  const k=document.getElementById('keyInput').value.trim();
+  if(!k.startsWith('sk-ant-')){
+    document.getElementById('keyErr').style.display='block';return;
+  }
+  localStorage.setItem('fi_apikey',k);
+  document.getElementById('modal').style.display='none';
+}
+function resetKey(){
+  localStorage.removeItem('fi_apikey');
+  document.getElementById('keyInput').value='';
+  document.getElementById('keyErr').style.display='none';
+  document.getElementById('modal').style.display='flex';
+}
+function getKey(){return localStorage.getItem('fi_apikey')}
+
+// Verifica ao carregar
+window.addEventListener('DOMContentLoaded',()=>{
+  if(getKey()) document.getElementById('modal').style.display='none';
+  document.getElementById('keyInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveKey()});
+});
+
+// ── Relógio ───────────────────────────────────────────────
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('datestr').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
+tick();setInterval(tick,1000);
+
+// ── Formata markdown → HTML ───────────────────────────────
+function fmt(txt){
+  return txt
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/^#{1,3}\s+(.+)$/gm,'<h3>$1</h3>')
+    .split(/\n{2,}/)
+    .filter(p=>p.trim())
+    .map(p=>{
+      p=p.trim();
+      const lines=p.split('\n');
+      if(lines.every(l=>/^[-•*]\s/.test(l.trim())))
+        return '<ul>'+lines.map(l=>`<li>${l.replace(/^[-•*]\s/,'')}</li>`).join('')+'</ul>';
+      return p.startsWith('<h3>')?p:`<p>${p.replace(/\n/g,' ')}</p>`;
+    }).join('');
+}
+
+// ── Timestamp ─────────────────────────────────────────────
+function stamp(id){
+  const t=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById(id).innerHTML=`<div class="dot live"></div> Atualizado ${t}`;
+}
+
+// ── Chamada API ───────────────────────────────────────────
+async function ask(cntId,tsId,prompt){
+  const el=document.getElementById(cntId);
+  el.innerHTML='<div class="loading"><span class="spin"></span> Buscando e analisando notícias…</div>';
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":getKey(),
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        tools:[{type:"web_search_20250305",name:"web_search"}],
+        messages:[{role:"user",content:prompt}]
+      })
+    });
+    const d=await r.json();
+    if(d.error) throw new Error(d.error.message);
+    const txt=d.content.filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    el.innerHTML=txt?fmt(txt):'<p class="err">Sem conteúdo retornado.</p>';
+    stamp(tsId);
+  }catch(e){
+    el.innerHTML=`<p class="err">⚠️ ${e.message}</p>`;
+  }
+}
+
+// ── Carrega tudo ──────────────────────────────────────────
+function loadAll(){
+  const btn=document.getElementById('btnRefresh');
+  btn.disabled=true;btn.innerHTML='⏳ Atualizando…';
+  const hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const sections=[
+    ['cnt-briefing','ts-briefing',`Hoje é ${hoje}. Você é um assistente de inteligência financeira sênior. Elabore um briefing executivo conciso para um Consultor Financeiro Patrimonial brasileiro de alto padrão. Pesquise as notícias mais relevantes de hoje sobre: cenário político brasileiro e seus impactos, dados econômicos (Selic, inflação, fiscal), mercado financeiro local (B3, câmbio, juros futuros) e mercados internacionais (Fed, S&P, petróleo, China). Escreva em linguagem profissional e direta, destacando o que mais importa para orientar clientes de alta renda hoje. Use parágrafos curtos. Máximo 380 palavras.`],
+    ['cnt-pol','ts-pol',`Hoje é ${hoje}. Pesquise as principais notícias políticas do Brasil publicadas hoje. Foque em decisões, votações no Congresso, atos do Executivo ou eventos que possam impactar direta ou indiretamente a economia, mercado financeiro ou ambiente regulatório. Redija de forma objetiva e analítica para um Consultor Financeiro Patrimonial. Máximo 280 palavras.`],
+    ['cnt-eco','ts-eco',`Hoje é ${hoje}. Pesquise os dados e notícias econômicas do Brasil publicados hoje: IPCA, IGP-M, Selic, política fiscal, dívida pública, balanço de pagamentos, dados do Banco Central, IBGE e Tesouro Nacional. Apresente de forma técnica, com números quando disponíveis, para um profissional de finanças. Máximo 280 palavras.`],
+    ['cnt-local','ts-local',`Hoje é ${hoje}. Pesquise o desempenho do mercado financeiro brasileiro hoje: Ibovespa (pontos e variação %), câmbio USD/BRL, taxas de juros futuros (DI), destaques de ações, movimentos em fundos e renda fixa. Apresente os números com contexto e análise para um Consultor Financeiro Patrimonial. Máximo 280 palavras.`],
+    ['cnt-int','ts-int',`Hoje é ${hoje}. Pesquise as principais notícias dos mercados internacionais hoje: Fed, BCE, S&P 500, Nasdaq, Dow Jones, petróleo (WTI e Brent), ouro, yuan, economia dos EUA, Europa e China. Destaque o que pode impactar o Brasil e investidores brasileiros. Máximo 280 palavras.`]
+  ];
+  const delay=ms=>new Promise(r=>setTimeout(r,ms));
+  (async()=>{
+    for(let i=0;i<sections.length;i++){
+      ask(...sections[i]);
+      if(i<sections.length-1) await delay(1500);
+    }
+    await delay(15000);
+    btn.disabled=false;btn.innerHTML='🔄 Atualizar';
+  })();
+}
+</script>
+</body>
+</html>
