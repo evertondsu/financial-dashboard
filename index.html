@@ -316,14 +316,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   const ms=document.getElementById('modalSenha');
 
   if(!hash){
-    // Primeira vez — configurar senha
+    // Define senha padrão silenciosamente na primeira vez
+    sha256('1105Janela!').then(h=>{
+      localStorage.setItem('fi_senha',h);
+    });
     ms.style.display='flex';
-    document.getElementById('senhaTitle').textContent='Criar Senha de Acesso';
-    document.getElementById('senhaDesc').textContent='Primeira vez? Defina uma senha para proteger seu dashboard.';
-    document.getElementById('senhaLabel').textContent='Nova Senha';
-    document.getElementById('senhaBtnEntrar').textContent='Criar Senha →';
-    document.getElementById('senhaConfirmWrap').style.display='flex';
-    document.getElementById('senhaHint').textContent='Você precisará desta senha sempre que acessar o dashboard.';
   } else if(!auth){
     ms.style.display='flex';
   } else {
